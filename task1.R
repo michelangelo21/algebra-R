@@ -1,4 +1,34 @@
-# gramschmidt <- function(V) {
+check_orthonormality <- function(X, eps = 1e-14) all(abs(t(X) %*% X - diag(ncol(X))) < eps)
+
+check_orthogonality <- function(X, eps = 1e-14) {
+    tXX <- t(X) %*% X
+    all(abs(tXX - diag(diag(tXX))) < eps)
+}
+
+norm_vec <- function(x) sqrt(sum(x^2))
+
+gram_schmidt <- function(V) {
+    k <- ncol(V) # number of vectors
+    d <- nrow(V) # dimension of vectors
+    # qr(V)$rank == k
+    U <- matrix(0, d, k)
+    U[, 1] <- V[, 1] / norm_vec(V[, 1])
+    for (i in 2:k) {
+        U[, i] <- V[, i]
+        for (j in 1:(i - 1)) {
+            U[, i] <- U[, i] - (t(U[, j]) %*% V[, i]) * U[, j]
+        }
+        U[, i] <- U[, i] / norm_vec(U[, i])
+    }
+    U
+}
+
+gram_schmidt_matrix <- function(V) {
+    # qr decomposition (V = Q %*% R)
+    QR <- qr(V)
+    Q <- qr.Q(QR)
+    Q
+}
 
 # }
 V <- matrix(c(2, 3, -2, 1, 2, 2, 4, 4, 4), 3, 3)
@@ -6,36 +36,71 @@ V <- matrix(c(2, 3, -2, 1, 2, 2), 3, 2)
 V <- matrix(c(1, 0, 0, 0, 1, 0), 3, 2)
 V
 
-k <- ncol(V) # number of vectors
-d <- nrow(V) # dimension of vectors
 
-qr(V)$rank == k
+
+
 
 # det(V) == 0
 
-# check orthogonality
-# V %*% t(V) == diag(d)
-t(V) %*% V == diag(k)
+V
+QR <- qr(V)
+Q <- qr.Q(QR)
+R <- qr.R(QR)
 
-
-
-norm_vec <- function(x) sqrt(sum(x^2))
-
-U <- matrix(0, d, k)
+Q
+R
 U
 
-U[, 1] <- V[, 1] / norm_vec(V[, 1])
+gram_schmidt_matrix(V)
+gram_schmidt(V)
+
+
+U <- matrix(0, 7, 7)
+U <- gram_schmidt(V)
+
+dot(U[, j], U[, i])
+
+U[, j] %*% U[, i]
+
+t(U[, j])
+U[, j]
+
 U
 
+diag(U)
+diag(diag(U))
+check_orthonormality(U)
+check_orthonormality(Q)
+check_orthonormality(2 * U)
+check_orthogonality(2 * U)
 
-for (i in 2:k) {
-    U[, i] <- V[, i]
-    for (j in 1:(i - 1)) {
-        U[, i] <- U[, i] - (t(U[, j]) %*% U[, i]) * U[, j]
-    }
-    U[, i] <- U[, i] / norm_vec(U[, i])
+
+####################### time comparison
+library(microbenchmark)
+
+
+max_dim <- 8
+ds <- 2^seq(max_dim)
+mean_times <- matrix(data = NA, nrow = 2, ncol = max_dim)
+for (d in ds) {
+    V <- matrix(runif(d^2), d, d)
+
+    res <- microbenchmark(
+        gram_schmidt(V),
+        gram_schmidt_matrix(V),
+        unit = "milliseconds",
+        times = 20
+    )
+    m <- summary(res)$mean
+    # mean_times <- cbind(mean_times, m)
+    mean_times[, log2(d)] <- m
 }
-U
-t(U) %*% U == diag(k)
 
-diag(3)
+# plot time comparison
+plot(ds, mean_times[1, ], type = "l", col = "red", xlab = "dimension", ylab = "time [ms]", main = "Gram-Schmidt algorithm")
+plot(ds, mean_times[1, ], type = "l", col = "red", xlab = "dimension", ylab = "time [ms]", main = "Gram-Schmidt algorithm", log = "y")
+lines(ds, mean_times[2, ], col = "blue")
+# log scale
+mean_times
+ds
+10^seq(1, 10)
