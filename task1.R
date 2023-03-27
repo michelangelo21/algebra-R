@@ -30,11 +30,26 @@ gram_schmidt_matrix <- function(V) {
     Q
 }
 
-# }
-V <- matrix(c(2, 3, -2, 1, 2, 2, 4, 4, 4), 3, 3)
+V1 <- c(1, 2, 3)
+V2 <- c(4, 5, 6)
+V3 <- c(7, 8, 9)
+V <- cbind(V1, V2, V3)
+V
+
+
+
 V <- matrix(c(2, 3, -2, 1, 2, 2), 3, 2)
 V <- matrix(c(1, 0, 0, 0, 1, 0), 3, 2)
+V <- matrix(c(1, 0, 0, 1, 0, 0), 3, 2)
+V <- matrix(c(2, 3, -2, 1, 2, 2, 4, 4, 4), 3, 3)
 V
+
+U <- gram_schmidt(V)
+check_orthogonality(U)
+check_orthonormality(U)
+
+check_orthogonality(2 * U)
+check_orthonormality(2 * U)
 
 
 
@@ -47,24 +62,11 @@ QR <- qr(V)
 Q <- qr.Q(QR)
 R <- qr.R(QR)
 
-Q
-R
-U
-
 gram_schmidt_matrix(V)
 gram_schmidt(V)
 
 
-U <- matrix(0, 7, 7)
 U <- gram_schmidt(V)
-
-dot(U[, j], U[, i])
-
-U[, j] %*% U[, i]
-
-t(U[, j])
-U[, j]
-
 U
 
 diag(U)
@@ -98,7 +100,7 @@ for (d in ds) {
 
 # plot time comparison
 plot(ds, mean_times[1, ], type = "l", col = "red", xlab = "dimension", ylab = "time [ms]", main = "Gram-Schmidt algorithm")
-plot(ds, mean_times[1, ], type = "l", col = "red", xlab = "dimension", ylab = "time [ms]", main = "Gram-Schmidt algorithm", log = "y")
+# plot(ds, mean_times[1, ], type = "l", col = "red", xlab = "dimension", ylab = "time [ms]", main = "Gram-Schmidt algorithm", log = "y")
 lines(ds, mean_times[2, ], col = "blue")
 # log scale
 mean_times
