@@ -1,4 +1,4 @@
-library.packages("gridExtra")
+install.packages("gridExtra")
 install.packages("ggExtra")
 
 # libraries
